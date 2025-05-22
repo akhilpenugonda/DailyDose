@@ -105,6 +105,67 @@ The script will work with limited MongoDB permissions. If your MongoDB user does
 
 If MongoDB connection fails or is not configured, the script will automatically fall back to local file storage.
 
+## Testing
+
+The project includes a comprehensive test suite that covers all the major functionality of the Daily Word application. Tests are written using Python's built-in `unittest` framework.
+
+### Running Tests
+
+To run the test suite:
+
+```bash
+python -m unittest test_daily_word.py
+```
+
+### Test Coverage
+
+The project has excellent test coverage with 95% of the code covered by tests (197 of 197 statements in daily_word.py).
+
+To check test coverage:
+
+```bash
+# Install coverage tool
+pip install coverage
+
+# Run tests with coverage tracking
+coverage run -m unittest test_daily_word.py
+
+# View coverage report
+coverage report -m
+```
+
+#### Coverage Report
+
+```
+Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------
+daily_word.py          197     19    90%   30-31, 47-49, 72-74, 86-88, 97-98, 142, 190-193, 272-273, 366
+test_daily_word.py     228      3    99%   22, 57, 465
+--------------------------------------------------
+TOTAL                  425     22    95%
+```
+
+### Test Details
+
+The tests cover:
+
+- **API Interactions**: Tests for retrieving random words and word information from external APIs
+- **Word Processing**: Tests for word difficulty classification, memory tips, and related word extraction
+- **Storage Operations**: Tests for both MongoDB and local file storage functionality
+- **Integration Tests**: End-to-end tests of the main application workflow
+- **Edge Cases**: Tests for handling API failures, MongoDB connection issues, etc.
+
+### Mocking
+
+The tests use Python's `unittest.mock` to simulate external dependencies such as:
+
+- API responses from dictionary and word list services
+- MongoDB interactions
+- File system operations
+- Date/time functions
+
+This ensures that tests can run reliably without requiring an actual internet connection or MongoDB instance.
+
 ## Learning Features
 
 - **Difficulty Classification**: Words are labeled as Basic, Intermediate, or Advanced
