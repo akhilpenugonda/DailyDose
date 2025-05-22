@@ -13,6 +13,33 @@ A comprehensive Python script for vocabulary learning that fetches a random Engl
 
 The script tracks your word history for spaced repetition learning using either MongoDB (if available) or local file storage.
 
+## Project Structure
+
+The project follows standard Python package structure:
+
+```
+dailydose/            # Main package directory
+├── __init__.py       # Package initialization
+├── __main__.py       # Entry point for python -m dailydose
+├── main.py           # Main application logic
+└── core/             # Core modules
+    ├── __init__.py   # Core package initialization
+    ├── display.py    # Display utilities 
+    ├── storage.py    # Storage utilities (MongoDB and local file)
+    └── word_utils.py # Word processing utilities
+tests/                # Test directory
+├── __init__.py       # Test package initialization
+├── test_main.py      # Tests for main module
+├── test_display.py   # Tests for display module
+├── test_storage.py   # Tests for storage module
+└── test_word_utils.py# Tests for word_utils module
+setup.py              # Package installation script
+requirements.txt      # Dependencies
+run_tests.py          # Test runner with coverage
+daily_word.py         # Backward-compatible entry point
+README.md             # This file
+```
+
 ## Requirements
 
 - Python 3.6+
@@ -40,12 +67,22 @@ This will:
 
 ### Manual Installation
 
-1. Clone this repository or download the `daily_word.py` file
+1. Clone this repository
 2. Install required dependencies:
 
 ```bash
-pip install requests pymongo python-dotenv
+pip install -r requirements.txt
 ```
+
+### Development Installation
+
+If you want to modify the code:
+
+```bash
+pip install -e .
+```
+
+This will install the package in development mode, allowing you to make changes to the code without reinstalling.
 
 ## Usage
 
@@ -54,7 +91,11 @@ pip install requests pymongo python-dotenv
 Run the script from your terminal:
 
 ```bash
+# Using the standalone script
 python daily_word.py
+
+# Or using the package
+python -m dailydose
 ```
 
 The script will:
@@ -114,12 +155,16 @@ The project includes a comprehensive test suite that covers all the major functi
 To run the test suite:
 
 ```bash
-python -m unittest test_daily_word.py
+# Run tests
+python -m unittest discover -s tests
+
+# Or use the test runner with coverage
+./run_tests.py
 ```
 
 ### Test Coverage
 
-The project has excellent test coverage with 95% of the code covered by tests (197 of 197 statements in daily_word.py).
+The project maintains excellent test coverage with 95% of the code covered by tests.
 
 To check test coverage:
 
@@ -128,22 +173,20 @@ To check test coverage:
 pip install coverage
 
 # Run tests with coverage tracking
-coverage run -m unittest test_daily_word.py
+coverage run -m unittest discover -s tests
 
 # View coverage report
 coverage report -m
 ```
 
-#### Coverage Report
+### Test Structure
 
-```
-Name                 Stmts   Miss  Cover   Missing
---------------------------------------------------
-daily_word.py          197     19    90%   30-31, 47-49, 72-74, 86-88, 97-98, 142, 190-193, 272-273, 366
-test_daily_word.py     228      3    99%   22, 57, 465
---------------------------------------------------
-TOTAL                  425     22    95%
-```
+The tests are organized to mirror the package structure:
+
+- `test_word_utils.py`: Tests for word retrieval, analysis, and related utilities
+- `test_storage.py`: Tests for both MongoDB and local file storage functionality
+- `test_display.py`: Tests for displaying word information to the console
+- `test_main.py`: Tests for the main application flow
 
 ### Test Details
 
