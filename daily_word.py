@@ -5,6 +5,51 @@ import json
 import sys
 import os
 import datetime
+import pymongo
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+load_dotenv()
+
+# MongoDB connection settings - set to None if not using MongoDB
+MONGODB_URI = os.environ.get("MONGODB_URI", None)  # Can be set via environment variable
+MONGODB_DB_NAME = os.environ.get("MONGODB_DB_NAME", "word_learning")
+MONGODB_COLLECTION = os.environ.get("MONGODB_COLLECTION", "word_history")
+
+# MongoDB client - will be initialized if connection string is provided
+mongo_client = None
+db = None
+word_collection = None
+
+def initialize_mongodb():
+    """Initialize MongoDB connection if a connection string is provided"""
+    global mongo_client, db, word_collection
+    
+    if not MONGODB_URI:
+        print("MongoDB URI not provided. Using local file storage.")
+        return False
+    
+    try:
+        # Set a short timeout for the connection attempt
+        mongo_client = pymongo.MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+        
+        # Verify connection
+        mongo_client.admin.command('ping')
+        
+        # Initialize database and collection
+        db = mongo_client[MONGODB_DB_NAME]
+        word_collection = db[MONGODB_COLLECTION]
+        
+        # Create index on word field for faster lookups
+        word_collection.create_index("word")
+        
+        print("Connected to MongoDB successfully.")
+        return True
+    except (ConnectionFailure, ServerSelectionTimeoutError) as e:
+        print(f"MongoDB connection failed: {e}. Using local file storage.")
+        mongo_client = None
+        return False
 
 def get_random_word():
     """Fetch a random word from a list of common English words"""
@@ -86,7 +131,49 @@ def get_memory_tip(word):
     # Simple association tip
     return f"Try associating this word with a mental image or personal experience to better remember it."
 
-def save_to_history(word, info):
+def save_to_mongodb(word, info):
+    """Save word to MongoDB if connection is available"""
+    if not word_collection:
+        return False
+    
+    try:
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        
+        # Check if word already exists in database
+        existing_word = word_collection.find_one({"word": word})
+        
+        if existing_word:
+            # Update existing word
+            word_collection.update_one(
+                {"word": word},
+                {
+                    "$inc": {"review_count": 1},
+                    "$set": {"last_reviewed": today}
+                }
+            )
+        else:
+            # Insert new word
+            word_data = {
+                "word": word,
+                "date_added": today,
+                "last_reviewed": today,
+                "review_count": 1,
+                "difficulty": get_learning_difficulty(word)
+            }
+            
+            # Add some word info for future reference
+            if info:
+                word_data["phonetics"] = info.get("phonetics", [])
+                word_data["meanings"] = info.get("meanings", [])
+            
+            word_collection.insert_one(word_data)
+        
+        return True
+    except Exception as e:
+        print(f"Error saving to MongoDB: {e}")
+        return False
+
+def save_to_file(word, info):
     """Save word to history file for spaced repetition learning"""
     history_file = "word_history.json"
     today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -119,6 +206,16 @@ def save_to_history(word, info):
     # Save updated history
     with open(history_file, 'w') as f:
         json.dump(history, f, indent=2)
+
+def save_word_history(word, info):
+    """Save word to history using available methods"""
+    # Try saving to MongoDB first
+    mongo_success = save_to_mongodb(word, info)
+    
+    # Always save to file as fallback
+    save_to_file(word, info)
+    
+    return mongo_success
 
 def get_usage_examples(word, definitions):
     """Get additional usage examples beyond those provided in definitions"""
@@ -174,7 +271,7 @@ def display_word_info(word_data):
     meanings = word_data.get("meanings", [])
     
     # Save this word to history
-    save_to_history(word, word_data)
+    db_status = save_word_history(word, word_data)
     
     print("\n" + "="*70)
     print(f"📚 DAILY WORD: {word.upper()} 📚".center(70))
@@ -239,11 +336,16 @@ def display_word_info(word_data):
     print("\n✏️ PRACTICE: Try to use this word in a sentence of your own!")
     
     print("\n" + "="*70)
-    print(f"Word saved to your learning history.".center(70))
+    storage_msg = "Word saved to MongoDB and local file storage." if db_status else "Word saved to local file storage."
+    print(f"{storage_msg}".center(70))
     print("="*70 + "\n")
 
 def main():
+    """Main function that runs the program"""
     print("Finding a random English word for you...\n")
+    
+    # Try to initialize MongoDB connection
+    initialize_mongodb()
     
     while True:
         word = get_random_word()

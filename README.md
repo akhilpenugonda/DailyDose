@@ -11,12 +11,13 @@ A comprehensive Python script for vocabulary learning that fetches a random Engl
 - Memory tips based on word structure
 - Practice prompts for active learning
 
-The script also tracks your word history for spaced repetition learning.
+The script tracks your word history for spaced repetition learning using either MongoDB (if available) or local file storage.
 
 ## Requirements
 
 - Python 3.6+
 - Internet connection (to fetch words and their definitions)
+- MongoDB (optional) for enhanced data storage
 
 ## Installation
 
@@ -24,10 +25,12 @@ The script also tracks your word history for spaced repetition learning.
 2. Install required dependencies:
 
 ```
-pip install requests
+pip install requests pymongo python-dotenv
 ```
 
 ## Usage
+
+### Basic Usage
 
 Run the script from your terminal:
 
@@ -38,15 +41,59 @@ python daily_word.py
 The script will:
 1. Fetch a random English word
 2. Display comprehensive information for vocabulary learning
-3. Save the word to your learning history file
+3. Save the word to your learning history (file or database)
 4. If information isn't available for a word, it will automatically try another word
+
+### MongoDB Configuration (Optional)
+
+The script can store word history in MongoDB for enhanced functionality. You have two options to configure it:
+
+#### Option 1: Using a .env file (Recommended)
+
+1. Create a `.env` file in the same directory as the script
+2. Add your MongoDB connection details to the file:
+
+```
+MONGODB_URI=mongodb://username:password@localhost:27017/
+MONGODB_DB_NAME=word_learning
+MONGODB_COLLECTION=word_history
+```
+
+3. An example template is provided in `env.example`. You can copy and rename it:
+
+```
+cp env.example .env
+```
+
+4. Edit the `.env` file with your actual connection details.
+
+#### Option 2: Using environment variables
+
+Set the MongoDB connection string using environment variables:
+
+```
+# Unix/Linux/macOS
+export MONGODB_URI="mongodb://username:password@localhost:27017/"
+
+# Windows
+set MONGODB_URI=mongodb://username:password@localhost:27017/
+```
+
+Optional database configuration:
+
+```
+export MONGODB_DB_NAME="your_database_name"
+export MONGODB_COLLECTION="your_collection_name"
+```
+
+If MongoDB connection fails or is not configured, the script will automatically fall back to local file storage.
 
 ## Learning Features
 
 - **Difficulty Classification**: Words are labeled as Basic, Intermediate, or Advanced
 - **Etymology Links**: Access to word origins via Etymonline
 - **Mnemonic Techniques**: Memory tips based on prefixes and word structure
-- **Learning History**: Words are saved to `word_history.json` for future reference and spaced repetition
+- **Learning History**: Words are saved to MongoDB (if available) or `word_history.json` for future reference
 - **Audio Pronunciation**: Links to audio files when available
 - **Practice Prompts**: Encourages active usage to reinforce learning
 
@@ -98,6 +145,6 @@ Finding a random English word for you...
 ✏️ PRACTICE: Try to use this word in a sentence of your own!
 
 ======================================================================
-                Word saved to your learning history.                 
+            Word saved to local file storage.            
 ======================================================================
 ``` 
