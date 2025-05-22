@@ -21,10 +21,29 @@ The script tracks your word history for spaced repetition learning using either 
 
 ## Installation
 
+### Quick Setup (Recommended)
+
+Use the provided setup script to create a virtual environment and install dependencies:
+
+```bash
+# Make the setup script executable
+chmod +x setup.sh
+
+# Run the setup script
+./setup.sh
+```
+
+This will:
+1. Create a Python virtual environment
+2. Install all required dependencies
+3. Create a `.env` file from the template if it doesn't exist
+
+### Manual Installation
+
 1. Clone this repository or download the `daily_word.py` file
 2. Install required dependencies:
 
-```
+```bash
 pip install requests pymongo python-dotenv
 ```
 
@@ -34,7 +53,7 @@ pip install requests pymongo python-dotenv
 
 Run the script from your terminal:
 
-```
+```bash
 python daily_word.py
 ```
 
@@ -50,41 +69,39 @@ The script can store word history in MongoDB for enhanced functionality. You hav
 
 #### Option 1: Using a .env file (Recommended)
 
-1. Create a `.env` file in the same directory as the script
+1. Create a `.env` file in the same directory as the script (or use the setup script to create it)
 2. Add your MongoDB connection details to the file:
 
 ```
-MONGODB_URI=mongodb://username:password@localhost:27017/
+MONGODB_URI=mongodb://username:password@host:port/database
 MONGODB_DB_NAME=word_learning
 MONGODB_COLLECTION=word_history
 ```
 
-3. An example template is provided in `env.example`. You can copy and rename it:
-
-```
-cp env.example .env
-```
-
-4. Edit the `.env` file with your actual connection details.
+3. Edit the `.env` file with your actual connection details.
 
 #### Option 2: Using environment variables
 
 Set the MongoDB connection string using environment variables:
 
-```
+```bash
 # Unix/Linux/macOS
-export MONGODB_URI="mongodb://username:password@localhost:27017/"
+export MONGODB_URI="mongodb://username:password@host:port/database"
 
 # Windows
-set MONGODB_URI=mongodb://username:password@localhost:27017/
+set MONGODB_URI=mongodb://username:password@host:port/database
 ```
 
 Optional database configuration:
 
-```
+```bash
 export MONGODB_DB_NAME="your_database_name"
 export MONGODB_COLLECTION="your_collection_name"
 ```
+
+#### MongoDB Permissions
+
+The script will work with limited MongoDB permissions. If your MongoDB user does not have permissions to create indexes, the script will display a warning but continue to function normally.
 
 If MongoDB connection fails or is not configured, the script will automatically fall back to local file storage.
 
@@ -145,6 +162,18 @@ Finding a random English word for you...
 ✏️ PRACTICE: Try to use this word in a sentence of your own!
 
 ======================================================================
-            Word saved to local file storage.            
+            Word saved to MongoDB and local file storage.            
 ======================================================================
-``` 
+```
+
+## Troubleshooting
+
+### MongoDB Connection Issues
+
+If you encounter MongoDB connection issues:
+
+1. Verify your connection string in the `.env` file
+2. Ensure your MongoDB user has appropriate permissions
+3. Check if your MongoDB server is running and accessible
+
+If issues persist, the script will use local file storage as a fallback. 
