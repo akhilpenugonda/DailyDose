@@ -26,7 +26,10 @@ dailydose/            # Main package directory
     ├── __init__.py   # Core package initialization
     ├── display.py    # Display utilities 
     ├── storage.py    # Storage utilities (MongoDB and local file)
+    ├── email_service.py # Email functionality using AWS SES
     └── word_utils.py # Word processing utilities
+templates/            # Email templates
+├── word_email.html   # HTML template for word emails
 tests/                # Test directory
 ├── __init__.py       # Test package initialization
 ├── test_main.py      # Tests for main module
@@ -36,6 +39,7 @@ tests/                # Test directory
 setup.py              # Package installation script
 requirements.txt      # Dependencies
 run_tests.py          # Test runner with coverage
+subscribers.txt       # Email subscribers list
 daily_word.py         # Backward-compatible entry point
 README.md             # This file
 ```
@@ -280,4 +284,53 @@ If you encounter MongoDB connection issues:
 2. Ensure your MongoDB user has appropriate permissions
 3. Check if your MongoDB server is running and accessible
 
-If issues persist, the script will use local file storage as a fallback. 
+If issues persist, the script will use local file storage as a fallback.
+
+## Email Functionality
+
+The application can send beautifully formatted emails with the daily word information using AWS SES (Simple Email Service).
+
+### Configuration
+
+To enable email functionality:
+
+1. Configure AWS credentials in the `.env` file:
+```
+EMAIL_ENABLED=true
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+EMAIL_SENDER=your.email@example.com
+```
+
+2. Add subscribers by either:
+   - Setting a comma-separated list in the `.env` file:
+     ```
+     EMAIL_SUBSCRIBERS=user1@example.com,user2@example.com
+     ```
+   - Or by adding email addresses to the `subscribers.txt` file (one per line)
+
+### Email Templates
+
+Email templates use Jinja2 for formatting. The default template is automatically created in the `templates` directory the first time the application runs. You can customize this template to change the appearance of the emails.
+
+### AWS SES Requirements
+
+To use AWS SES:
+
+1. You must have an AWS account
+2. Set up and verify the sender email in the AWS SES console
+3. If your account is in the SES sandbox, you'll need to verify recipient emails as well
+4. Create an IAM user with SES send privileges and use its credentials
+
+For more information, see the [AWS SES documentation](https://docs.aws.amazon.com/ses/latest/dg/Welcome.html).
+
+### Customizing Templates
+
+The default email template is created automatically, but you can modify it to suit your needs. The template uses HTML and CSS for styling and Jinja2 for dynamic content.
+
+Key template variables available:
+- `word`: The word being learned
+- `phonetics`: Pronunciation information
+- `meanings`: Word definitions and examples
+- `difficulty`: The difficulty level of the word 

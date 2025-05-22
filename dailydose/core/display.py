@@ -9,6 +9,7 @@ from .word_utils import (
     get_usage_examples
 )
 from .storage import save_word_history
+from .email_service import send_word_email, get_subscribers, EMAIL_ENABLED
 
 def display_word_info(word_data):
     """Display information about the word in a nicely formatted way"""
@@ -21,6 +22,9 @@ def display_word_info(word_data):
     
     # Save this word to history
     db_status = save_word_history(word, word_data)
+    
+    # Add difficulty to word_data for email template
+    word_data["difficulty"] = get_learning_difficulty(word)
     
     print("\n" + "="*70)
     print(f"📚 DAILY WORD: {word.upper()} 📚".center(70))
@@ -87,4 +91,31 @@ def display_word_info(word_data):
     print("\n" + "="*70)
     storage_msg = "Word saved to MongoDB and local file storage." if db_status else "Word saved to local file storage."
     print(f"{storage_msg}".center(70))
-    print("="*70 + "\n") 
+    print("="*70 + "\n")
+    
+    # Email functionality information
+    print(f"Email functionality is {'ENABLED' if EMAIL_ENABLED else 'DISABLED'}.")
+    
+    # Send email to subscribers if enabled
+    if EMAIL_ENABLED:
+        send_emails_to_subscribers(word_data)
+    else:
+        print("To enable email functionality, set EMAIL_ENABLED=true in your .env file.")
+        print("You will also need to configure AWS credentials.")
+
+def send_emails_to_subscribers(word_data):
+    """Send emails to all subscribers with the word information"""
+    subscribers = get_subscribers()
+    if not subscribers:
+        print("No subscribers found. Skipping email sending.")
+        return
+    
+    print(f"Sending emails to {len(subscribers)} subscribers...")
+    
+    # Send an email to each subscriber
+    for email in subscribers:
+        success = send_word_email(email, word_data)
+        if success:
+            print(f"Email sent successfully to {email}")
+        else:
+            print(f"Failed to send email to {email}") 

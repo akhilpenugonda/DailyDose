@@ -3,3 +3,4 @@ __pycache__/
 .coverage
 .cursor/
 word_history.json
+subscribers.txt

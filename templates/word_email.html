@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Word: {{ word|upper }}</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1f2937; background-color: #f9fafb;">
+    <!-- Main Container -->
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px; margin: 0 auto;">
+        <tr>
+            <td style="padding: 20px;">
+                <!-- Header -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #3b82f6; border-radius: 8px 8px 0 0; margin-bottom: 0;">
+                    <tr>
+                        <td style="padding: 25px 20px; text-align: center; color: white;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <h1 style="font-size: 38px; font-weight: 700; letter-spacing: 1px; margin: 0; color: white;">
+                                            {{ word|upper }} <span style="font-size: 36px;">📚</span>
+                                        </h1>
+                                        
+                                        {% if phonetics and phonetics[0]['text'] %}
+                                        <p style="font-style: italic; font-size: 18px; margin: 5px 0; opacity: 0.9;">{{ phonetics[0]['text'] }}</p>
+                                        {% endif %}
+                                        
+                                        {% if difficulty %}
+                                        <div style="margin-top: 10px;">
+                                            <span style="display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; {% if difficulty == 'Basic' %}background-color: #d1fae5; color: #065f46;{% elif difficulty == 'Intermediate' %}background-color: #fef3c7; color: #92400e;{% else %}background-color: #fee2e2; color: #b91c1c;{% endif %}">
+                                                {{ difficulty }}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if phonetics and phonetics[0]['audio'] %}
+                                        <div style="margin-top: 15px;">
+                                            <a href="{{ phonetics[0]['audio'] }}" style="display: inline-block; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 15px;">
+                                                🔊 Listen to Pronunciation
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- Content Container -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-top: 0;">
+                    <tr>
+                        <td style="padding: 0;">
+                            <!-- Two-Column Layout: Definitions + Usage -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <!-- Left Column: Definitions -->
+                                    <td valign="top" style="width: 60%; padding: 20px; border-right: 1px solid #e5e7eb;">
+                                        {% if meanings %}
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 10px;">
+                                            <tr>
+                                                <td style="background-color: #3b82f6; color: white; padding: 10px 15px; font-weight: 600; font-size: 16px; border-radius: 6px 6px 0 0;">
+                                                    📖 Definitions
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; background-color: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 6px 6px;">
+                                                    {% for meaning in meanings %}
+                                                    <div style="{% if not loop.first %}margin-top: 15px;{% endif %}">
+                                                        <p style="font-style: italic; color: #6b7280; margin: 0 0 8px 0; font-size: 15px; font-weight: 600; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb;">[{{ meaning.partOfSpeech }}]</p>
+                                                        
+                                                        {% for definition in meaning.definitions %}
+                                                        <div style="margin-bottom: 12px; padding-left: 15px; position: relative;">
+                                                            <p style="font-size: 15px; margin: 0 0 5px 0;">• {{ definition.definition }}</p>
+                                                            
+                                                            {% if definition.example %}
+                                                            <p style="margin: 4px 0 8px 10px; padding-left: 8px; color: #6b7280; font-style: italic; border-left: 2px solid #8b5cf6; font-size: 14px;">"{{ definition.example }}"</p>
+                                                            {% endif %}
+                                                        </div>
+                                                        {% endfor %}
+                                                        
+                                                        <!-- Related Words - Horizontal Layout -->
+                                                        {% if meaning.synonyms or meaning.antonyms %}
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 5px; margin-bottom: 10px;">
+                                                            <tr>
+                                                                {% if meaning.synonyms %}
+                                                                <td style="vertical-align: top; padding-right: 5px; width: {% if meaning.antonyms %}50%{% else %}100%{% endif %};">
+                                                                    <p style="font-weight: 600; color: #6b7280; margin: 0 0 5px 0; font-size: 13px;">Synonyms:</p>
+                                                                    <div>
+                                                                        {% for synonym in meaning.synonyms[:4] %}
+                                                                        <span style="display: inline-block; background-color: #e0e7ff; color: #4338ca; border-radius: 12px; padding: 3px 8px; font-size: 12px; font-weight: 500; margin: 0 3px 3px 0;">{{ synonym }}</span>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                </td>
+                                                                {% endif %}
+                                                                
+                                                                {% if meaning.antonyms %}
+                                                                <td style="vertical-align: top; padding-left: 5px; width: {% if meaning.synonyms %}50%{% else %}100%{% endif %};">
+                                                                    <p style="font-weight: 600; color: #6b7280; margin: 0 0 5px 0; font-size: 13px;">Antonyms:</p>
+                                                                    <div>
+                                                                        {% for antonym in meaning.antonyms[:4] %}
+                                                                        <span style="display: inline-block; background-color: #fce7f3; color: #be185d; border-radius: 12px; padding: 3px 8px; font-size: 12px; font-weight: 500; margin: 0 3px 3px 0;">{{ antonym }}</span>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                </td>
+                                                                {% endif %}
+                                                            </tr>
+                                                        </table>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endfor %}
+                                                    
+                                                    <div style="margin-top: 10px;">
+                                                        <p style="margin: 0; font-size: 13px;">For etymology: <a href="https://www.etymonline.com/word/{{ word }}" style="color: #3b82f6; text-decoration: none; font-weight: 500;" target="_blank">Etymonline</a></p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <!-- Right Column: Usage Examples & Memory Tip -->
+                                    <td valign="top" style="width: 40%; padding: 20px;">
+                                        <!-- Usage Examples Card -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 15px;">
+                                            <tr>
+                                                <td style="background-color: #3b82f6; color: white; padding: 10px 15px; font-weight: 600; font-size: 16px; border-radius: 6px 6px 0 0;">
+                                                    💬 Usage Examples
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; background-color: #f8fafc; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 6px 6px;">
+                                                    <ul style="list-style-type: none; padding: 0; margin: 0;">
+                                                        {% for meaning in meanings %}
+                                                            {% for definition in meaning.definitions[:2] %}
+                                                                {% if definition.example %}
+                                                                <li style="margin-bottom: 10px; position: relative; padding-left: 20px;">
+                                                                    <span style="position: absolute; left: 0; top: 0; color: #8b5cf6; font-size: 18px; font-weight: bold;">"</span>
+                                                                    {{ definition.example }}
+                                                                </li>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                        
+                                                        <!-- Add generic examples if needed -->
+                                                        <li style="margin-bottom: 10px; position: relative; padding-left: 20px;">
+                                                            <span style="position: absolute; left: 0; top: 0; color: #8b5cf6; font-size: 18px; font-weight: bold;">"</span>
+                                                            Try using "{{ word }}" in a casual conversation today.
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Memory Tip Card -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 15px;">
+                                            <tr>
+                                                <td style="background-color: #ede9fe; padding: 15px; border-radius: 6px; position: relative; padding-left: 45px;">
+                                                    <span style="position: absolute; left: 15px; top: 12px; font-size: 20px;">💡</span>
+                                                    <strong>Memory Tip:</strong> Associate "{{ word }}" with a mental image or personal experience to better remember it.
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Practice Section -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td style="background-color: #f0f9ff; padding: 15px; border-radius: 6px; text-align: center;">
+                                                    <p style="font-weight: 600; color: #2563eb; margin: 0 0 8px 0; font-size: 16px;">✏️ Practice Challenge</p>
+                                                    <p style="margin: 0; font-size: 14px;">Create a sentence using "{{ word }}" within the next 24 hours to reinforce your learning.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Footer -->
+                            <tr>
+                                <td style="text-align: center; padding: 15px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;">
+                                    <p style="margin: 0 0 3px 0;">This email was sent by the Daily Word application to help you expand your vocabulary.</p>
+                                    <p style="margin: 0;">&copy; 2023 Daily Word Learning Tool</p>
+                                </td>
+                            </tr>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html> 
