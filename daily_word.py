@@ -6,7 +6,7 @@ import sys
 import os
 import datetime
 import pymongo
-from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, OperationFailure
 from dotenv import load_dotenv
 
 # Load environment variables from .env file if it exists
@@ -41,8 +41,13 @@ def initialize_mongodb():
         db = mongo_client[MONGODB_DB_NAME]
         word_collection = db[MONGODB_COLLECTION]
         
-        # Create index on word field for faster lookups
-        word_collection.create_index("word")
+        # Try to create index on word field for faster lookups
+        try:
+            word_collection.create_index("word")
+        except OperationFailure as op_err:
+            # If permission error for creating index, log it but continue
+            print(f"Warning: Could not create index (permission issue): {op_err}")
+            # We can still use the database without an index
         
         print("Connected to MongoDB successfully.")
         return True
@@ -133,7 +138,7 @@ def get_memory_tip(word):
 
 def save_to_mongodb(word, info):
     """Save word to MongoDB if connection is available"""
-    if not word_collection:
+    if word_collection is None:
         return False
     
     try:
