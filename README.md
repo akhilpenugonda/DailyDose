@@ -334,3 +334,68 @@ Key template variables available:
 - `phonetics`: Pronunciation information
 - `meanings`: Word definitions and examples
 - `difficulty`: The difficulty level of the word 
+
+## Deploying on Raspberry Pi
+
+### Prerequisites
+- Raspberry Pi with Raspberry Pi OS installed
+- Internet connection
+- Python 3.6 or higher installed
+
+### Setup Steps
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/DailyDose.git
+   cd DailyDose
+   ```
+
+2. **Run the setup script:**
+   ```bash
+   chmod +x setup.sh
+   ./setup.sh
+   ```
+
+3. **Configure your environment variables:**
+   Edit the .env file with your MongoDB credentials and other configuration settings.
+
+4. **Test the application:**
+   ```bash
+   python daily_word.py
+   ```
+
+### Scheduling Daily Execution at 9 AM CST
+
+To run the application automatically every day at 9 AM CST:
+
+1. **Create a shell script to run the application:**
+   Create a file named `run_daily_word.sh` with the following content:
+   ```bash
+   #!/bin/bash
+   cd /path/to/DailyDose
+   source venv/bin/activate
+   python daily_word.py
+   deactivate
+   ```
+
+2. **Make the script executable:**
+   ```bash
+   chmod +x run_daily_word.sh
+   ```
+
+3. **Add a cron job:**
+   ```bash
+   crontab -e
+   ```
+   
+   Add the following line to run at 9 AM CST (which is 14:00 UTC assuming CST is UTC-6, adjust if needed for Daylight Saving Time):
+   ```
+   0 14 * * * /path/to/DailyDose/run_daily_word.sh >> /path/to/DailyDose/cron.log 2>&1
+   ```
+
+4. **Verify the cron job:**
+   ```bash
+   crontab -l
+   ```
+
+This will run your DailyDose application every day at 9 AM CST and log any output to cron.log for troubleshooting. 
