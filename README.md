@@ -389,13 +389,50 @@ To run the application automatically every day at 9 AM CST:
    ```
    
    Add the following line to run at 9 AM CST (which is 14:00 UTC assuming CST is UTC-6, adjust if needed for Daylight Saving Time):
-   ```
+   ```bash
    0 14 * * * /path/to/DailyDose/run_daily_word.sh >> /path/to/DailyDose/cron.log 2>&1
    ```
 
 4. **Verify the cron job:**
    ```bash
    crontab -l
+   ```
+
+### Checking Cron Jobs and Logs
+
+1. **For systems using systemd (e.g., newer Raspbian):**
+   Use the journal logs for cron:
+   ```bash
+   journalctl -u cron
+   ```
+   
+   Or see the latest logs:
+   ```bash
+   journalctl -u cron | tail
+   ```
+
+2. **Log output manually to a file (recommended for testing):**
+   In your crontab, redirect the output of your command to a log file to confirm it ran.
+
+   Edit your cron:
+   ```bash
+   crontab -e
+   ```
+   
+   Add a job like:
+   ```bash
+   0 14 * * * echo "Job ran at $(date)" >> /home/pi/cron-test.log
+   ```
+   
+   Then check the log:
+   ```bash
+   cat /home/pi/cron-test.log
+   ```
+
+3. **View current running cron jobs:**
+   Cron itself doesn't keep a "currently running" list. But you can use ps to check if a specific job is running (if it takes time):
+   ```bash
+   ps aux | grep daily_word.py
    ```
 
 This will run your DailyDose application every day at 9 AM CST and log any output to cron.log for troubleshooting. 
